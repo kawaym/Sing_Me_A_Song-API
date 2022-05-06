@@ -1,7 +1,10 @@
 import supertest from "supertest";
 import app from "../../src/app.js";
-import { prisma } from "../../src/database.js";
+import prisma from "../../src/database.js";
 import * as recommendationsService from "../../src/services/recommendationsService.js";
+import * as recommendationFactory from "../factories/recommendationsFactory.js";
+
+let exports = {};
 
 describe("Sing Me a Song Recommendations Integration Tests", () => {
   describe("POST /recommendations", () => {
@@ -20,6 +23,30 @@ describe("Sing Me a Song Recommendations Integration Tests", () => {
       const { status } = response;
       expect(status).toEqual(201);
       expect(recommendationsWithSameName.length).toEqual(1);
+    });
+  });
+  describe("POST /recommendations/:id/upvote", () => {
+    it("Should return 200 for a valid id", async () => {
+      const rec = await recommendationFactory.create();
+
+      const response = await supertest(app).post(
+        `/recommendations/${rec.id}/upvote`
+      );
+      const { status } = response;
+
+      expect(status).toEqual(200);
+    });
+  });
+  describe("POST /recommendations/:id/downvote", () => {
+    it("Should return 200 for a valid id", async () => {
+      const rec = await recommendationFactory.create();
+
+      const response = await supertest(app).post(
+        `/recommendations/${rec.id}/downvote`
+      );
+      const { status } = response;
+
+      expect(status).toEqual(200);
     });
   });
   beforeEach(async () => {

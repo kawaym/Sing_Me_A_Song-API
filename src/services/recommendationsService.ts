@@ -1,23 +1,25 @@
 import { Recommendation } from "@prisma/client";
-import { recommendationRepository } from "../repositories/recommendationRepository.js";
-import { notFoundError } from "../utils/errorUtils.js";
+import * as recommendationRepository from "../repositories/recommendationRepository.js";
+import * as errorUtils from "../utils/errorUtils.js";
 
 export type CreateRecommendationData = Omit<Recommendation, "id" | "score">;
 
-async function insert(createRecommendationData: CreateRecommendationData) {
+export async function insert(
+  createRecommendationData: CreateRecommendationData
+) {
   await recommendationRepository.create(createRecommendationData);
 }
 
-async function upvote(id: number) {
+export async function upvote(id: number) {
   const recommendation = await recommendationRepository.find(id);
-  if (!recommendation) throw notFoundError();
+  if (!recommendation) throw errorUtils.notFoundError();
 
   await recommendationRepository.updateScore(id, "increment");
 }
 
-async function downvote(id: number) {
+export async function downvote(id: number) {
   const recommendation = await recommendationRepository.find(id);
-  if (!recommendation) throw notFoundError();
+  if (!recommendation) throw errorUtils.notFoundError();
 
   await recommendationRepository.updateScore(id, "decrement");
 
@@ -26,32 +28,32 @@ async function downvote(id: number) {
   }
 }
 
-async function getById(id: number) {
+export async function getById(id: number) {
   return recommendationRepository.find(id);
 }
 
-async function get() {
+export async function get() {
   return recommendationRepository.findAll();
 }
 
-async function getTop(amount: number) {
+export async function getTop(amount: number) {
   return recommendationRepository.getAmountByScore(amount);
 }
 
-async function getRandom() {
+export async function getRandom() {
   const random = Math.random();
   const scoreFilter = getScoreFilter(random);
 
   const recommendations = await getByScore(scoreFilter);
   if (recommendations.length === 0) {
-    throw notFoundError();
+    throw errorUtils.notFoundError();
   }
 
   const randomIndex = Math.floor(Math.random() * recommendations.length);
   return recommendations[randomIndex];
 }
 
-async function getByScore(scoreFilter: "gt" | "lte") {
+export async function getByScore(scoreFilter: "gt" | "lte") {
   const recommendations = await recommendationRepository.findAll({
     score: 10,
     scoreFilter,
@@ -71,13 +73,3 @@ function getScoreFilter(random: number) {
 
   return "lte";
 }
-
-export const recommendationService = {
-  insert,
-  upvote,
-  downvote,
-  getRandom,
-  get,
-  getById,
-  getTop,
-};

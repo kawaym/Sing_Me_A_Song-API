@@ -1,4 +1,6 @@
 type AppErrorTypes = "conflict" | "not_found" | "unauthorized" | "wrong_schema";
+
+let exports = {};
 export interface AppError {
   type: AppErrorTypes;
   message: string;

@@ -1,4 +1,4 @@
-import { prisma } from "../src/database.js";
+import prisma from "../src/database.js";
 
 async function main() {
   //upsert = update/insert

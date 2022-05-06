@@ -6,8 +6,9 @@
   "main": "index.js",
   "scripts": {
     "build": "npx ts-node src/index.ts",
-    "dev": "nodemon src/server.ts",
-    "test": "dotenv -e .env.test prisma db seed && NODE_OPTIONS=--experimental-vm-modules dotenv -e .env.test jest -i"
+    "dev": "NODE_ENV=test nodemon src/server.ts",
+    "test": "dotenv -e .env.test prisma db seed && NODE_OPTIONS=--experimental-vm-modules dotenv -e .env.test jest ./integration -i",
+    "coverage": "NODE_OPTIONS=--experimental-vm-modules dotenv -e .env.test jest ./unit -- --coverage=true"
   },
   "keywords": [],
   "author": "",

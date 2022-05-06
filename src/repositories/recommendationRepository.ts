@@ -1,8 +1,10 @@
 import { Prisma } from "@prisma/client";
-import { prisma } from "../database.js";
+import prisma from "../database.js";
 import { CreateRecommendationData } from "../services/recommendationsService.js";
 
-async function create(createRecommendationData: CreateRecommendationData) {
+export async function create(
+  createRecommendationData: CreateRecommendationData
+) {
   await prisma.recommendation.create({
     data: createRecommendationData,
   });
@@ -13,23 +15,23 @@ interface FindAllWhere {
   scoreFilter: "lte" | "gt";
 }
 
-function findAll(findAllWhere?: FindAllWhere) {
+export function findAll(findAllWhere?: FindAllWhere) {
   const filter = getFindAllFilter(findAllWhere);
 
   return prisma.recommendation.findMany({
     where: filter,
-    orderBy: { id: "desc" }
+    orderBy: { id: "desc" },
   });
 }
 
-function getAmountByScore(take: number) {
+export function getAmountByScore(take: number) {
   return prisma.recommendation.findMany({
     orderBy: { score: "desc" },
     take,
   });
 }
 
-function getFindAllFilter(
+export function getFindAllFilter(
   findAllWhere?: FindAllWhere
 ): Prisma.RecommendationWhereInput {
   if (!findAllWhere) return {};
@@ -41,13 +43,16 @@ function getFindAllFilter(
   };
 }
 
-function find(id: number) {
+export function find(id: number) {
   return prisma.recommendation.findUnique({
     where: { id },
   });
 }
 
-async function updateScore(id: number, operation: "increment" | "decrement") {
+export async function updateScore(
+  id: number,
+  operation: "increment" | "decrement"
+) {
   await prisma.recommendation.update({
     where: { id },
     data: {
@@ -56,17 +61,8 @@ async function updateScore(id: number, operation: "increment" | "decrement") {
   });
 }
 
-async function remove(id: number) {
+export async function remove(id: number) {
   await prisma.recommendation.delete({
     where: { id },
   });
 }
-
-export const recommendationRepository = {
-  create,
-  findAll,
-  find,
-  updateScore,
-  getAmountByScore,
-  remove,
-};
