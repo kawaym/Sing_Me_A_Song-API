@@ -1,15 +1,17 @@
 import supertest from "supertest";
 import app from "../../src/app.js";
 import prisma from "../../src/database.js";
-import * as recommendationsService from "../../src/services/recommendationsService.js";
-import * as recommendationFactory from "../factories/recommendationsFactory.js";
+import recommendationService, {
+  CreateRecommendationData,
+} from "../../src/services/recommendationsService.js";
+import recommendationFactory from "../factories/recommendationsFactory.js";
 
 let exports = {};
 
 describe("Sing Me a Song Recommendations Integration Tests", () => {
   describe("POST /recommendations", () => {
     it("Should return 201 for a valid body", async () => {
-      const link: recommendationsService.CreateRecommendationData = {
+      const link: CreateRecommendationData = {
         name: "Ascence - About You",
         youtubeLink: "https://www.youtube.com/watch?v=bXHfrdi_fsU",
       };
@@ -47,6 +49,46 @@ describe("Sing Me a Song Recommendations Integration Tests", () => {
       const { status } = response;
 
       expect(status).toEqual(200);
+    });
+  });
+  describe("GET /recommendations", () => {
+    it("should return an array of recommendations", async () => {
+      await recommendationFactory.create();
+      const response = await supertest(app).get("/recommendations");
+      const { status, body } = response;
+      expect(status).toEqual(200);
+      expect(body.length).toBeLessThanOrEqual(10);
+    });
+  });
+  describe("GET /recommendations/:id", () => {
+    it("should return a recommendation", async () => {
+      const { id } = await recommendationFactory.create();
+      const response = await supertest(app).get(`/recommendations/${id}`);
+
+      const { status } = response;
+      expect(status).toEqual(200);
+    });
+  });
+  describe("GET /recommendations/random", () => {
+    it("should return a recommendation", async () => {
+      await recommendationFactory.createMany();
+      const response = await supertest(app).get("/recommendations/random");
+
+      const { status } = response;
+      expect(status).toEqual(200);
+    });
+  });
+  describe("GET /recommendations/top/:amount", () => {
+    it("should return an array of recommendations", async () => {
+      await recommendationFactory.createMany();
+      const amount = 3;
+      const response = await supertest(app).get(
+        `/recommendations/top/${amount}`
+      );
+
+      const { status, body } = response;
+      expect(status).toEqual(200);
+      expect(body.length).toEqual(amount);
     });
   });
   beforeEach(async () => {

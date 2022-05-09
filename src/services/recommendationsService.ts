@@ -1,23 +1,21 @@
 import { Recommendation } from "@prisma/client";
-import * as recommendationRepository from "../repositories/recommendationRepository.js";
-import * as errorUtils from "../utils/errorUtils.js";
+import recommendationRepository from "../repositories/recommendationRepository.js";
+import errorUtils from "../utils/errorUtils.js";
 
 export type CreateRecommendationData = Omit<Recommendation, "id" | "score">;
 
-export async function insert(
-  createRecommendationData: CreateRecommendationData
-) {
+async function insert(createRecommendationData: CreateRecommendationData) {
   await recommendationRepository.create(createRecommendationData);
 }
 
-export async function upvote(id: number) {
+async function upvote(id: number) {
   const recommendation = await recommendationRepository.find(id);
   if (!recommendation) throw errorUtils.notFoundError();
 
   await recommendationRepository.updateScore(id, "increment");
 }
 
-export async function downvote(id: number) {
+async function downvote(id: number) {
   const recommendation = await recommendationRepository.find(id);
   if (!recommendation) throw errorUtils.notFoundError();
 
@@ -28,19 +26,19 @@ export async function downvote(id: number) {
   }
 }
 
-export async function getById(id: number) {
+async function getById(id: number) {
   return recommendationRepository.find(id);
 }
 
-export async function get() {
+async function get() {
   return recommendationRepository.findAll();
 }
 
-export async function getTop(amount: number) {
+async function getTop(amount: number) {
   return recommendationRepository.getAmountByScore(amount);
 }
 
-export async function getRandom() {
+async function getRandom() {
   const random = Math.random();
   const scoreFilter = getScoreFilter(random);
 
@@ -53,7 +51,7 @@ export async function getRandom() {
   return recommendations[randomIndex];
 }
 
-export async function getByScore(scoreFilter: "gt" | "lte") {
+async function getByScore(scoreFilter: "gt" | "lte") {
   const recommendations = await recommendationRepository.findAll({
     score: 10,
     scoreFilter,
@@ -73,3 +71,17 @@ function getScoreFilter(random: number) {
 
   return "lte";
 }
+
+const recommendationService = {
+  getById,
+  getByScore,
+  getScoreFilter,
+  getRandom,
+  getTop,
+  get,
+  downvote,
+  upvote,
+  insert,
+};
+
+export default recommendationService;
