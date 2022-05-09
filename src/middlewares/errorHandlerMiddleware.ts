@@ -1,9 +1,6 @@
 import { NextFunction, Request, Response } from "express";
-import {
-  AppError,
-  errorTypeToStatusCode,
-  isAppError,
-} from "../utils/errorUtils.js";
+import errorUtils from "../utils/errorUtils.js";
+import { AppError } from "../utils/errorUtils.js";
 
 export function errorHandlerMiddleware(
   err: Error | AppError,
@@ -11,10 +8,10 @@ export function errorHandlerMiddleware(
   res: Response,
   next: NextFunction
 ) {
-  console.log(err);
-
-  if (isAppError(err)) {
-    return res.status(errorTypeToStatusCode(err.type)).send(err.message);
+  if (errorUtils.isAppError(err)) {
+    return res
+      .status(errorUtils.errorTypeToStatusCode(err.type))
+      .send(err.message);
   }
 
   return res.sendStatus(500);

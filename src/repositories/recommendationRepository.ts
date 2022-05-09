@@ -1,5 +1,5 @@
 import { Prisma } from "@prisma/client";
-import { prisma } from "../database.js";
+import prisma from "../database.js";
 import { CreateRecommendationData } from "../services/recommendationsService.js";
 
 async function create(createRecommendationData: CreateRecommendationData) {
@@ -18,7 +18,7 @@ function findAll(findAllWhere?: FindAllWhere) {
 
   return prisma.recommendation.findMany({
     where: filter,
-    orderBy: { id: "desc" }
+    orderBy: { id: "desc" },
   });
 }
 
@@ -62,11 +62,14 @@ async function remove(id: number) {
   });
 }
 
-export const recommendationRepository = {
+const recommendationRepository = {
   create,
-  findAll,
-  find,
-  updateScore,
-  getAmountByScore,
   remove,
+  updateScore,
+  find,
+  getAmountByScore,
+  getFindAllFilter,
+  findAll,
 };
+
+export default recommendationRepository;

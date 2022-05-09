@@ -1,6 +1,6 @@
 import { Recommendation } from "@prisma/client";
-import { recommendationRepository } from "../repositories/recommendationRepository.js";
-import { notFoundError } from "../utils/errorUtils.js";
+import recommendationRepository from "../repositories/recommendationRepository.js";
+import errorUtils from "../utils/errorUtils.js";
 
 export type CreateRecommendationData = Omit<Recommendation, "id" | "score">;
 
@@ -10,14 +10,14 @@ async function insert(createRecommendationData: CreateRecommendationData) {
 
 async function upvote(id: number) {
   const recommendation = await recommendationRepository.find(id);
-  if (!recommendation) throw notFoundError();
+  if (!recommendation) throw errorUtils.notFoundError();
 
   await recommendationRepository.updateScore(id, "increment");
 }
 
 async function downvote(id: number) {
   const recommendation = await recommendationRepository.find(id);
-  if (!recommendation) throw notFoundError();
+  if (!recommendation) throw errorUtils.notFoundError();
 
   await recommendationRepository.updateScore(id, "decrement");
 
@@ -44,7 +44,7 @@ async function getRandom() {
 
   const recommendations = await getByScore(scoreFilter);
   if (recommendations.length === 0) {
-    throw notFoundError();
+    throw errorUtils.notFoundError();
   }
 
   const randomIndex = Math.floor(Math.random() * recommendations.length);
@@ -72,12 +72,16 @@ function getScoreFilter(random: number) {
   return "lte";
 }
 
-export const recommendationService = {
-  insert,
-  upvote,
-  downvote,
-  getRandom,
-  get,
+const recommendationService = {
   getById,
+  getByScore,
+  getScoreFilter,
+  getRandom,
   getTop,
+  get,
+  downvote,
+  upvote,
+  insert,
 };
+
+export default recommendationService;
